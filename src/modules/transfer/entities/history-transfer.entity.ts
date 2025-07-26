@@ -1,4 +1,4 @@
-export class Transfer {
+export class HistoryTransfer {
   id: number;
   account_id: number;
   transfer_value: number;
@@ -7,5 +7,5 @@ export class Transfer {
   description?: string;
   new_value: number;
   old_value: number;
-  type: "TRANSFER" | "DEPOSIT" | "WITHDRAWAL";
+  type: string; // "TRANSFER", "DEPOSIT", "WITHDRAWAL", etc.
 }

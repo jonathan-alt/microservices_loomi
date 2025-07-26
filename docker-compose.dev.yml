@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  # Microserviço de Transferência (Desenvolvimento)
+  transfer-service-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: transfer-service-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - API_PREFIX=api/v1
+      # Configurações do banco de dados (externo)
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - transfer-network
+    restart: unless-stopped
+    command: npm run start:dev
+
+networks:
+  transfer-network:
+    driver: bridge

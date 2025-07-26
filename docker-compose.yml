@@ -1,6 +1,31 @@
 version: "3.8"
 
 services:
+  # Banco de Dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: transfer-postgres
+    environment:
+      - POSTGRES_DB=${DB_NAME:-transfer_service}
+      - POSTGRES_USER=${DB_USERNAME:-transfer_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-transfer_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - transfer-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USERNAME:-transfer_user} -d ${DB_NAME:-transfer_service}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Microserviço de Transferência
   transfer-service:
     build:
@@ -14,12 +39,15 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - API_PREFIX=api/v1
-      # Configurações do banco de dados (externo)
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
+      # Configurações do banco de dados
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=${DB_USERNAME:-transfer_user}
+      - DB_PASSWORD=${DB_PASSWORD:-transfer_password}
+      - DB_NAME=${DB_NAME:-transfer_service}
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - transfer-network
     restart: unless-stopped
@@ -37,6 +65,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+volumes:
+  postgres_data:
+    driver: local
 
 networks:
   transfer-network:

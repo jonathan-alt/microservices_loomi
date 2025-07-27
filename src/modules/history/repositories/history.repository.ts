@@ -1,86 +1,53 @@
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { HistoryTransfer } from "../entities/history-transfer.entity";
 import { CreateHistoryDto } from "../dto/create-history.dto";
 import { UpdateHistoryDto } from "../dto/update-history.dto";
 
 @Injectable()
 export class HistoryRepository {
-  private histories: HistoryTransfer[] = [
-    {
-      id: 1,
-      account_id: 1,
-      transfer_value: 100.0,
-      target_id_account: 2,
-      timestamp: new Date(),
-      description: "Transferência inicial",
-      new_value: 900.0,
-      old_value: 1000.0,
-      type: "TRANSFER-SENT",
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-    {
-      id: 2,
-      account_id: 2,
-      transfer_value: 100.0,
-      target_id_account: 1,
-      timestamp: new Date(),
-      description: "Recebimento de transferência",
-      new_value: 600.0,
-      old_value: 500.0,
-      type: "TRANSFER-RECEIVED",
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-  ];
+  constructor(
+    @InjectRepository(HistoryTransfer)
+    private readonly historyRepository: Repository<HistoryTransfer>,
+  ) {}
 
-  create(createHistoryDto: CreateHistoryDto): HistoryTransfer {
-    const history: HistoryTransfer = {
-      id: this.histories.length + 1,
+  async create(createHistoryDto: CreateHistoryDto): Promise<HistoryTransfer> {
+    const history = this.historyRepository.create({
       ...createHistoryDto,
       timestamp: new Date(createHistoryDto.timestamp),
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
-    this.histories.push(history);
-    return history;
+    });
+    return this.historyRepository.save(history);
   }
 
-  findAll(): HistoryTransfer[] {
-    return this.histories;
+  async findAll(): Promise<HistoryTransfer[]> {
+    return this.historyRepository.find();
   }
 
-  findById(id: number): HistoryTransfer | null {
-    return this.histories.find((history) => history.id === id) || null;
+  async findById(id: number): Promise<HistoryTransfer | null> {
+    return this.historyRepository.findOne({ where: { id } });
   }
 
-  update(
+  async update(
     id: number,
     updateHistoryDto: UpdateHistoryDto,
-  ): HistoryTransfer | null {
-    const index = this.histories.findIndex((history) => history.id === id);
-    if (index === -1) return null;
-
-    this.histories[index] = {
-      ...this.histories[index],
+  ): Promise<HistoryTransfer | null> {
+    const updateData = {
       ...updateHistoryDto,
       timestamp: updateHistoryDto.timestamp
         ? new Date(updateHistoryDto.timestamp)
-        : this.histories[index].timestamp,
-      updated_at: new Date(),
+        : undefined,
     };
-    return this.histories[index];
+    await this.historyRepository.update(id, updateData);
+    return this.findById(id);
   }
 
-  delete(id: number): boolean {
-    const index = this.histories.findIndex((history) => history.id === id);
-    if (index === -1) return false;
-
-    this.histories.splice(index, 1);
-    return true;
+  async delete(id: number): Promise<boolean> {
+    const result = await this.historyRepository.delete(id);
+    return (result.affected ?? 0) > 0;
   }
 
-  findByAccountId(accountId: number): HistoryTransfer[] {
-    return this.histories.filter((history) => history.account_id === accountId);
+  async findByAccountId(accountId: number): Promise<HistoryTransfer[]> {
+    return this.historyRepository.find({ where: { account_id: accountId } });
   }
 }

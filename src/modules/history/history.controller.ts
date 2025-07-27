@@ -18,37 +18,41 @@ export class HistoryController {
   constructor(private readonly historyService: HistoryService) {}
 
   @Post()
-  create(@Body() createHistoryDto: CreateHistoryDto): HistoryTransfer {
+  async create(
+    @Body() createHistoryDto: CreateHistoryDto,
+  ): Promise<HistoryTransfer> {
     return this.historyService.create(createHistoryDto);
   }
 
   @Get()
-  findAll(): HistoryTransfer[] {
+  async findAll(): Promise<HistoryTransfer[]> {
     return this.historyService.findAll();
   }
 
   @Get(":id")
-  findOne(@Param("id", ParseIntPipe) id: number): HistoryTransfer {
+  async findOne(
+    @Param("id", ParseIntPipe) id: number,
+  ): Promise<HistoryTransfer> {
     return this.historyService.findById(id);
   }
 
   @Get("account/:accountId")
-  findByAccountId(
+  async findByAccountId(
     @Param("accountId", ParseIntPipe) accountId: number,
-  ): HistoryTransfer[] {
+  ): Promise<HistoryTransfer[]> {
     return this.historyService.findByAccountId(accountId);
   }
 
   @Patch(":id")
-  update(
+  async update(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateHistoryDto: UpdateHistoryDto,
-  ): HistoryTransfer {
+  ): Promise<HistoryTransfer> {
     return this.historyService.update(id, updateHistoryDto);
   }
 
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): void {
+  async remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
     return this.historyService.delete(id);
   }
 }

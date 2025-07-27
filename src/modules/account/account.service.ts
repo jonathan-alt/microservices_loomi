@@ -8,38 +8,41 @@ import { Account } from "./entities/account.entity";
 export class AccountService {
   constructor(private readonly accountRepository: AccountRepository) {}
 
-  create(createAccountDto: CreateAccountDto): Account {
+  async create(createAccountDto: CreateAccountDto): Promise<Account> {
     return this.accountRepository.create(createAccountDto);
   }
 
-  findAll(): Account[] {
+  async findAll(): Promise<Account[]> {
     return this.accountRepository.findAll();
   }
 
-  findById(id: number): Account {
-    const account = this.accountRepository.findById(id);
+  async findById(id: number): Promise<Account> {
+    const account = await this.accountRepository.findById(id);
     if (!account) {
       throw new NotFoundException(`Conta com ID ${id} não encontrada`);
     }
     return account;
   }
 
-  update(id: number, updateAccountDto: UpdateAccountDto): Account {
-    const account = this.accountRepository.update(id, updateAccountDto);
+  async update(
+    id: number,
+    updateAccountDto: UpdateAccountDto,
+  ): Promise<Account> {
+    const account = await this.accountRepository.update(id, updateAccountDto);
     if (!account) {
       throw new NotFoundException(`Conta com ID ${id} não encontrada`);
     }
     return account;
   }
 
-  delete(id: number): void {
-    const deleted = this.accountRepository.delete(id);
+  async delete(id: number): Promise<void> {
+    const deleted = await this.accountRepository.delete(id);
     if (!deleted) {
       throw new NotFoundException(`Conta com ID ${id} não encontrada`);
     }
   }
 
-  findByClientId(clientId: number): Account[] {
+  async findByClientId(clientId: number): Promise<Account[]> {
     return this.accountRepository.findByClientId(clientId);
   }
 }

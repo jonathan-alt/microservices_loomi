@@ -18,35 +18,37 @@ export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @Post()
-  create(@Body() createAccountDto: CreateAccountDto): Account {
+  async create(@Body() createAccountDto: CreateAccountDto): Promise<Account> {
     return this.accountService.create(createAccountDto);
   }
 
   @Get()
-  findAll(): Account[] {
+  async findAll(): Promise<Account[]> {
     return this.accountService.findAll();
   }
 
   @Get(":id")
-  findOne(@Param("id", ParseIntPipe) id: number): Account {
+  async findOne(@Param("id", ParseIntPipe) id: number): Promise<Account> {
     return this.accountService.findById(id);
   }
 
   @Get("client/:clientId")
-  findByClientId(@Param("clientId", ParseIntPipe) clientId: number): Account[] {
+  async findByClientId(
+    @Param("clientId", ParseIntPipe) clientId: number,
+  ): Promise<Account[]> {
     return this.accountService.findByClientId(clientId);
   }
 
   @Patch(":id")
-  update(
+  async update(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateAccountDto: UpdateAccountDto,
-  ): Account {
+  ): Promise<Account> {
     return this.accountService.update(id, updateAccountDto);
   }
 
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number): void {
+  async remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
     return this.accountService.delete(id);
   }
 }

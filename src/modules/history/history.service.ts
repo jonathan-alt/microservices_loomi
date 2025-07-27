@@ -8,38 +8,41 @@ import { HistoryTransfer } from "./entities/history-transfer.entity";
 export class HistoryService {
   constructor(private readonly historyRepository: HistoryRepository) {}
 
-  create(createHistoryDto: CreateHistoryDto): HistoryTransfer {
+  async create(createHistoryDto: CreateHistoryDto): Promise<HistoryTransfer> {
     return this.historyRepository.create(createHistoryDto);
   }
 
-  findAll(): HistoryTransfer[] {
+  async findAll(): Promise<HistoryTransfer[]> {
     return this.historyRepository.findAll();
   }
 
-  findById(id: number): HistoryTransfer {
-    const history = this.historyRepository.findById(id);
+  async findById(id: number): Promise<HistoryTransfer> {
+    const history = await this.historyRepository.findById(id);
     if (!history) {
       throw new NotFoundException(`Histórico com ID ${id} não encontrado`);
     }
     return history;
   }
 
-  update(id: number, updateHistoryDto: UpdateHistoryDto): HistoryTransfer {
-    const history = this.historyRepository.update(id, updateHistoryDto);
+  async update(
+    id: number,
+    updateHistoryDto: UpdateHistoryDto,
+  ): Promise<HistoryTransfer> {
+    const history = await this.historyRepository.update(id, updateHistoryDto);
     if (!history) {
       throw new NotFoundException(`Histórico com ID ${id} não encontrado`);
     }
     return history;
   }
 
-  delete(id: number): void {
-    const deleted = this.historyRepository.delete(id);
+  async delete(id: number): Promise<void> {
+    const deleted = await this.historyRepository.delete(id);
     if (!deleted) {
       throw new NotFoundException(`Histórico com ID ${id} não encontrado`);
     }
   }
 
-  findByAccountId(accountId: number): HistoryTransfer[] {
+  async findByAccountId(accountId: number): Promise<HistoryTransfer[]> {
     return this.historyRepository.findByAccountId(accountId);
   }
 }

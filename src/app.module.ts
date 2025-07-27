@@ -1,14 +1,13 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { TransferModule } from "./modules/transfer/transfer.module";
 import { AccountModule } from "./modules/account/account.module";
-import { HistoryModule } from "./modules/history/history.module";
+import { HistoryTransferModule } from "./modules/history_transfer/history_transfer.module";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
 import { Account } from "./modules/account/entities/account.entity";
-import { HistoryTransfer } from "./modules/history/entities/history-transfer.entity";
+import { HistoryTransfer } from "./modules/history_transfer/entities/history-transfer.entity";
 
 @Module({
   imports: [
@@ -27,9 +26,8 @@ import { HistoryTransfer } from "./modules/history/entities/history-transfer.ent
       synchronize: false, // Desabilitado para evitar conflitos com schema existente
       logging: true,
     }),
-    TransferModule,
     AccountModule,
-    HistoryModule,
+    HistoryTransferModule,
   ],
   controllers: [],
   providers: [

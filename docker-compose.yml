@@ -4,24 +4,24 @@ services:
   # Banco de Dados PostgreSQL
   postgres:
     image: postgres:15-alpine
-    container_name: transfer-postgres
+    container_name: platform-postgres
     environment:
-      - POSTGRES_DB=${DB_NAME:-transfer_service}
-      - POSTGRES_USER=${DB_USERNAME:-transfer_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-transfer_password}
+      - POSTGRES_DB=${DB_NAME:-microservices_platform}
+      - POSTGRES_USER=${DB_USERNAME:-platform_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-platform_password}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./shared/database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - transfer-network
+      - platform-network
     restart: unless-stopped
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${DB_USERNAME:-transfer_user} -d ${DB_NAME:-transfer_service}",
+          "pg_isready -U ${DB_USERNAME:-platform_user} -d ${DB_NAME:-microservices_platform}",
         ]
       interval: 10s
       timeout: 5s
@@ -30,7 +30,7 @@ services:
   # RabbitMQ
   rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: transfer-rabbitmq
+    container_name: platform-rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME:-guest}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
@@ -41,7 +41,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - transfer-network
+      - platform-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
@@ -52,7 +52,7 @@ services:
   # Microserviço de Transferência
   transfer-service:
     build:
-      context: .
+      context: ./microservices/transfer-service
       dockerfile: Dockerfile
       target: production
     container_name: transfer-service
@@ -65,9 +65,9 @@ services:
       # Configurações do banco de dados
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USERNAME=${DB_USERNAME:-transfer_user}
-      - DB_PASSWORD=${DB_PASSWORD:-transfer_password}
-      - DB_NAME=${DB_NAME:-transfer_service}
+      - DB_USERNAME=${DB_USERNAME:-platform_user}
+      - DB_PASSWORD=${DB_PASSWORD:-platform_password}
+      - DB_NAME=${DB_NAME:-microservices_platform}
       # Configurações do RabbitMQ
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
@@ -80,7 +80,7 @@ services:
       rabbitmq:
         condition: service_healthy
     networks:
-      - transfer-network
+      - platform-network
     restart: unless-stopped
     healthcheck:
       test:
@@ -90,7 +90,7 @@ services:
           "--no-verbose",
           "--tries=1",
           "--spider",
-          "http://localhost:3000/api/v1/transfers",
+          "http://localhost:3000/api/v1/health",
         ]
       interval: 30s
       timeout: 10s
@@ -104,5 +104,5 @@ volumes:
     driver: local
 
 networks:
-  transfer-network:
+  platform-network:
     driver: bridge

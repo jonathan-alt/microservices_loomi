@@ -1,77 +1,101 @@
-# Transfer Service
+# Plataforma de Microserviços
 
-Microserviço para gerenciamento de transferências financeiras desenvolvido com NestJS.
+Esta é uma plataforma de microserviços construída com NestJS, PostgreSQL e RabbitMQ.
 
-## Instalação
+## 🏗️ Arquitetura
+
+```
+microservices-platform/
+├── microservices/
+│   ├── transfer-service/     # Microserviço de Transferências
+│   ├── client-service/       # Microserviço de Clientes (futuro)
+│   └── notification-service/ # Microserviço de Notificações (futuro)
+├── shared/                   # Código compartilhado
+│   ├── events/              # Eventos de domínio
+│   └── config/              # Configurações compartilhadas
+└── docker-compose.yml       # Orquestração dos serviços
+```
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+
+- Docker e Docker Compose
+- Node.js 18+
+
+### 1. Configurar Variáveis de Ambiente
 
 ```bash
-npm install
+cp env.example .env
+# Edite o arquivo .env conforme necessário
 ```
 
-## Execução
-
-### Desenvolvimento
+### 2. Executar a Plataforma
 
 ```bash
-npm run start:dev
+docker-compose -f docker-compose.dev.yml up
 ```
 
-### Produção
+### 3. Acessar os Serviços
+
+- **Transfer Service**: http://localhost:3000
+- **RabbitMQ Management**: http://localhost:15672
+- **PostgreSQL**: localhost:5432
+
+## 📋 Serviços
+
+### Transfer Service
+
+- **Porta**: 3000
+- **Responsabilidade**: Gestão de transferências e contas
+
+### Client Service (Futuro)
+
+- **Porta**: 3001
+- **Responsabilidade**: Gestão de clientes e perfis
+
+### Notification Service (Futuro)
+
+- **Porta**: 3002
+- **Responsabilidade**: Envio de notificações
+
+## 🔄 Comunicação Entre Serviços
+
+A comunicação entre microserviços é feita através de eventos via RabbitMQ:
+
+## 🛠️ Desenvolvimento
+
+### Adicionar Novo Microserviço
+
+1. Criar pasta em `microservices/nome-do-servico/`
+2. Configurar Dockerfile
+3. Adicionar ao `docker-compose.yml`
+4. Implementar eventos necessários
+
+### Compartilhar Código
+
+- Eventos: `shared/events/`
+- Configurações: `shared/config/`
+- DTOs: `shared/dto/`
+
+## 📊 Monitoramento
+
+- **RabbitMQ Management**: http://localhost:15672
+  - Usuário: guest
+  - Senha: guest
+
+## 🔧 Comandos Úteis
 
 ```bash
-npm run build
-npm run start:prod
+# Executar apenas um serviço
+docker-compose up transfer-service
+
+# Ver logs
+docker-compose logs -f transfer-service
+
+# Parar todos os serviços
+docker-compose down
+
+# Reconstruir imagens
+docker-compose build --no-cache
 ```
-
-## Testes
-
-### Testes Unitários
-
-```bash
-npm run test
-```
-
-### Testes E2E
-
-```bash
-npm run test:e2e
-```
-
-### Cobertura de Testes
-
-```bash
-npm run test:cov
-```
-
-```env
-# Aplicação
-PORT=3000
-NODE_ENV=development
-API_PREFIX=api/v1
-
-# Banco de Dados
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=password
-DB_NAME=transfer_service
-```
-
-## Tecnologias Utilizadas
-
-- **NestJS**: Framework para construção de aplicações escaláveis
-- **TypeScript**: Linguagem de programação tipada
-- **Jest**: Framework de testes
-- **Supertest**: Biblioteca para testes de API
-- **Class Validator**: Validação de dados
-- **Config**: Gerenciamento de configurações
-
-## Arquitetura
-
-Este microserviço segue os princípios de:
-
-- **Separação de Responsabilidades**: Cada componente tem uma responsabilidade específica
-- **Injeção de Dependência**: Uso do sistema de DI do NestJS
-- **Modularidade**: Organização em módulos independentes
-- **Testabilidade**: Estrutura preparada para testes unitários e E2E
-- **Configurabilidade**: Configurações centralizadas e flexíveis

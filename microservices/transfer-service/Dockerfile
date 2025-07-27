@@ -1,3 +1,23 @@
+# Estágio de desenvolvimento
+FROM node:20-alpine AS development
+
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+
+# Instalar todas as dependências (incluindo dev)
+RUN npm install
+
+# Copiar código fonte
+COPY . .
+
+# Expor porta
+EXPOSE 3000
+
+# Comando para desenvolvimento (hot reload)
+CMD ["npm", "run", "start:dev"]
+
 # Estágio de build
 FROM node:20-alpine AS builder
 

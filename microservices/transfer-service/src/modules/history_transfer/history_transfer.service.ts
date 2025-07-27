@@ -18,15 +18,16 @@ export class HistoryTransferService {
       await this.historyTransferRepository.create(createHistoryDto);
 
     // Publicar evento de transferência criada
-    const transferEvent = new TransferCreatedEvent(
-      history.id,
-      history.account_id,
-      history.target_id_account,
-      history.transfer_value,
-      history.description,
-      history.timestamp,
-    );
-    this.messagingService.publishTransferCreated(transferEvent);
+    if (history.id && history.account_id && history.target_id_account) {
+      const transferEvent = new TransferCreatedEvent(
+        history.id,
+        history.account_id,
+        history.target_id_account,
+        history.transfer_value,
+        history.description,
+      );
+      this.messagingService.publishTransferCreated(transferEvent);
+    }
 
     return history;
   }

@@ -44,15 +44,17 @@ export class AccountService {
     }
 
     // Publicar evento de atualização de saldo
-    const balanceEvent = new AccountBalanceUpdatedEvent(
-      account.id,
-      account.client_id,
-      oldAccount.value,
-      account.value,
-      account.value - oldAccount.value,
-      "TRANSFER",
-    );
-    this.messagingService.publishAccountBalanceUpdated(balanceEvent);
+    if (account.id && account.client_id) {
+      const balanceEvent = new AccountBalanceUpdatedEvent(
+        account.id,
+        account.client_id,
+        oldAccount.value,
+        account.value,
+        account.value - oldAccount.value,
+        "TRANSFER",
+      );
+      this.messagingService.publishAccountBalanceUpdated(balanceEvent);
+    }
 
     return account;
   }

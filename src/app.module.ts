@@ -1,17 +1,31 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { TypeOrmModule } from "@nestjs/typeorm";
 import { TransferModule } from "./modules/transfer/transfer.module";
 import { AccountModule } from "./modules/account/account.module";
 import { HistoryModule } from "./modules/history/history.module";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
+import { Account } from "./modules/account/entities/account.entity";
+import { HistoryTransfer } from "./modules/history/entities/history-transfer.entity";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [".env.local", ".env"],
+    }),
+    TypeOrmModule.forRoot({
+      type: "postgres",
+      host: process.env.DB_HOST || "postgres",
+      port: parseInt(process.env.DB_PORT || "5432"),
+      username: process.env.DB_USERNAME || "your_username",
+      password: process.env.DB_PASSWORD || "your_password",
+      database: process.env.DB_NAME || "your_database_name",
+      entities: [Account, HistoryTransfer],
+      synchronize: false, // Desabilitado para evitar conflitos com schema existente
+      logging: true,
     }),
     TransferModule,
     AccountModule,

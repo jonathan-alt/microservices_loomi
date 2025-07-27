@@ -6,26 +6,26 @@ import { CreateHistoryDto } from "../dto/create-history.dto";
 import { UpdateHistoryDto } from "../dto/update-history.dto";
 
 @Injectable()
-export class HistoryRepository {
+export class HistoryTransferRepository {
   constructor(
     @InjectRepository(HistoryTransfer)
-    private readonly historyRepository: Repository<HistoryTransfer>,
+    private readonly historyTransferRepository: Repository<HistoryTransfer>,
   ) {}
 
   async create(createHistoryDto: CreateHistoryDto): Promise<HistoryTransfer> {
-    const history = this.historyRepository.create({
+    const history = this.historyTransferRepository.create({
       ...createHistoryDto,
       timestamp: new Date(createHistoryDto.timestamp),
     });
-    return this.historyRepository.save(history);
+    return this.historyTransferRepository.save(history);
   }
 
   async findAll(): Promise<HistoryTransfer[]> {
-    return this.historyRepository.find();
+    return this.historyTransferRepository.find();
   }
 
   async findById(id: number): Promise<HistoryTransfer | null> {
-    return this.historyRepository.findOne({ where: { id } });
+    return this.historyTransferRepository.findOne({ where: { id } });
   }
 
   async update(
@@ -38,16 +38,18 @@ export class HistoryRepository {
         ? new Date(updateHistoryDto.timestamp)
         : undefined,
     };
-    await this.historyRepository.update(id, updateData);
+    await this.historyTransferRepository.update(id, updateData);
     return this.findById(id);
   }
 
   async delete(id: number): Promise<boolean> {
-    const result = await this.historyRepository.delete(id);
+    const result = await this.historyTransferRepository.delete(id);
     return (result.affected ?? 0) > 0;
   }
 
   async findByAccountId(accountId: number): Promise<HistoryTransfer[]> {
-    return this.historyRepository.find({ where: { account_id: accountId } });
+    return this.historyTransferRepository.find({
+      where: { account_id: accountId },
+    });
   }
 }

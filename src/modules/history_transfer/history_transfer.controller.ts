@@ -8,39 +8,41 @@ import {
   Delete,
   ParseIntPipe,
 } from "@nestjs/common";
-import { HistoryService } from "./history.service";
+import { HistoryTransferService } from "./history_transfer.service";
 import { CreateHistoryDto } from "./dto/create-history.dto";
 import { UpdateHistoryDto } from "./dto/update-history.dto";
 import { HistoryTransfer } from "./entities/history-transfer.entity";
 
-@Controller("history")
-export class HistoryController {
-  constructor(private readonly historyService: HistoryService) {}
+@Controller("history_transfer")
+export class HistoryTransferController {
+  constructor(
+    private readonly historyTransferService: HistoryTransferService,
+  ) {}
 
   @Post()
   async create(
     @Body() createHistoryDto: CreateHistoryDto,
   ): Promise<HistoryTransfer> {
-    return this.historyService.create(createHistoryDto);
+    return this.historyTransferService.create(createHistoryDto);
   }
 
   @Get()
   async findAll(): Promise<HistoryTransfer[]> {
-    return this.historyService.findAll();
+    return this.historyTransferService.findAll();
   }
 
   @Get(":id")
   async findOne(
     @Param("id", ParseIntPipe) id: number,
   ): Promise<HistoryTransfer> {
-    return this.historyService.findById(id);
+    return this.historyTransferService.findById(id);
   }
 
   @Get("account/:accountId")
   async findByAccountId(
     @Param("accountId", ParseIntPipe) accountId: number,
   ): Promise<HistoryTransfer[]> {
-    return this.historyService.findByAccountId(accountId);
+    return this.historyTransferService.findByAccountId(accountId);
   }
 
   @Patch(":id")
@@ -48,11 +50,11 @@ export class HistoryController {
     @Param("id", ParseIntPipe) id: number,
     @Body() updateHistoryDto: UpdateHistoryDto,
   ): Promise<HistoryTransfer> {
-    return this.historyService.update(id, updateHistoryDto);
+    return this.historyTransferService.update(id, updateHistoryDto);
   }
 
   @Delete(":id")
   async remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
-    return this.historyService.delete(id);
+    return this.historyTransferService.delete(id);
   }
 }

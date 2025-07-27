@@ -1,7 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { TransferModule } from "./modules/transfer/transfer.module";
 import { AccountModule } from "./modules/account/account.module";
 import { HistoryTransferModule } from "./modules/history_transfer/history_transfer.module";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
@@ -27,7 +26,6 @@ import { HistoryTransfer } from "./modules/history_transfer/entities/history-tra
       synchronize: false, // Desabilitado para evitar conflitos com schema existente
       logging: true,
     }),
-    TransferModule,
     AccountModule,
     HistoryTransferModule,
   ],

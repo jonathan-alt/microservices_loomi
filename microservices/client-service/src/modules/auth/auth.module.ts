@@ -8,6 +8,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { UserSession } from "./entities/user-session.entity";
 import { RedisService } from "./services/redis.service";
+import { BlacklistGuard } from "./guards/blacklist.guard";
 import { jwtConfig } from "../../config/jwt.config";
 
 @Module({
@@ -20,7 +21,13 @@ import { jwtConfig } from "../../config/jwt.config";
     TypeOrmModule.forFeature([UserSession]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy, RedisService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    LocalStrategy,
+    RedisService,
+    BlacklistGuard,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

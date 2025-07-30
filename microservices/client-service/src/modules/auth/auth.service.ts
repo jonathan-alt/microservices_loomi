@@ -1,20 +1,17 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-} from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 import { AuthResponseDto } from "./dto/auth-response.dto";
 import { jwtConfig } from "../../config/jwt.config";
+import { User, JwtPayload } from "./types/auth.types";
 
 @Injectable()
 export class AuthService {
   constructor(private jwtService: JwtService) {}
 
-  async login(loginDto: LoginDto): Promise<AuthResponseDto> {
+  login(loginDto: LoginDto): Promise<AuthResponseDto> {
     // Aqui você implementará a validação real com o banco
     // Por enquanto, usamos dados mock
     if (
@@ -30,7 +27,7 @@ export class AuthService {
         phone: "(11) 99999-9999",
       };
 
-      return this.generateTokens(user);
+      return Promise.resolve(this.generateTokens(user));
     }
 
     throw new UnauthorizedException("Credenciais inválidas");
@@ -39,7 +36,7 @@ export class AuthService {
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     // Aqui você implementará o registro real
     // Por enquanto, simulamos um registro bem-sucedido
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    await bcrypt.hash(registerDto.password, 10); // Simulando hash
 
     const user = {
       id: 2, // Simulando ID gerado
@@ -53,30 +50,30 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  async refreshToken(token: string): Promise<AuthResponseDto> {
+  refreshToken(token: string): Promise<AuthResponseDto> {
     try {
       const payload = this.jwtService.verify(token, {
         secret: jwtConfig.secret,
       });
 
       // Aqui você pode verificar se o token está na blacklist
-      const user = {
+      const user: User = {
         id: payload.sub,
         name: payload.name,
         email: payload.email,
         cpf: payload.cpf,
-        picture: payload.picture,
-        phone: payload.phone,
+        picture: "https://example.com/default.jpg",
+        phone: "(11) 99999-9999",
       };
 
-      return this.generateTokens(user);
-    } catch (error) {
+      return Promise.resolve(this.generateTokens(user));
+    } catch {
       throw new UnauthorizedException("Token inválido");
     }
   }
 
-  private generateTokens(user: any): AuthResponseDto {
-    const payload = {
+  private generateTokens(user: User): AuthResponseDto {
+    const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       name: user.name,
@@ -107,9 +104,10 @@ export class AuthService {
     };
   }
 
-  async logout(token: string): Promise<void> {
+  logout(token: string): Promise<void> {
     // Aqui você implementará a revogação do token
     // Por exemplo, adicionar à blacklist no Redis
     console.log("Token revogado:", token);
+    return Promise.resolve();
   }
 }

@@ -20,20 +20,16 @@ export class LoggingInterceptor implements NestInterceptor {
 
     const now = Date.now();
 
-    this.logger.log(
-      `📥 ${method} ${url} - IP: ${ip} - User-Agent: ${userAgent}`,
-    );
+    this.logger.log(` ${method} ${url} - IP: ${ip} - User-Agent: ${userAgent}`);
 
     if (body && Object.keys(body).length > 0) {
-      this.logger.debug(`📦 Request Body: ${JSON.stringify(body)}`);
+      this.logger.debug(` Request Body: ${JSON.stringify(body)}`);
     }
 
     return next.handle().pipe(
       tap(() => {
         const responseTime = Date.now() - now;
-        this.logger.log(
-          `📤 ${method} ${url} - ${responseTime}ms - Status: 200`,
-        );
+        this.logger.log(`${method} ${url} - ${responseTime}ms - Status: 200`);
       }),
       catchError((error) => {
         const responseTime = Date.now() - now;

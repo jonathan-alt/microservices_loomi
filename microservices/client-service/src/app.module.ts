@@ -3,6 +3,8 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 
+import { AuthModule } from "./modules/auth/auth.module";
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -11,15 +13,16 @@ import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
     }),
     TypeOrmModule.forRoot({
       type: "postgres",
-      host: process.env.DB_HOST || "postgres",
+      host: process.env.DB_HOST || "localhost",
       port: parseInt(process.env.DB_PORT || "5432"),
       username: process.env.DB_USERNAME || "your_username",
       password: process.env.DB_PASSWORD || "your_password",
       database: process.env.DB_NAME || "your_database_name",
-      entities: [],
+      entities: [__dirname + "/**/*.entity{.ts,.js}"],
       synchronize: false,
       logging: true,
     }),
+    AuthModule,
   ],
   controllers: [],
   providers: [

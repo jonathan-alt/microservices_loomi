@@ -11,6 +11,7 @@ import {
 import { AccountService } from "./account.service";
 import { CreateAccountDto } from "./dto/create-account.dto";
 import { UpdateAccountDto } from "./dto/update-account.dto";
+import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { Account } from "./entities/account.entity";
 
 @Controller("accounts")
@@ -35,7 +36,7 @@ export class AccountController {
   @Get("client/:clientId")
   async findByClientId(
     @Param("clientId", ParseIntPipe) clientId: number,
-  ): Promise<Account[]> {
+  ): Promise<Account | null> {
     return this.accountService.findByClientId(clientId);
   }
 
@@ -50,5 +51,12 @@ export class AccountController {
   @Delete(":id")
   async remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
     return this.accountService.delete(id);
+  }
+
+  @Post("transfer")
+  async transfer(
+    @Body() createTransactionDto: CreateTransactionDto,
+  ): Promise<Account> {
+    return this.accountService.transfer(createTransactionDto);
   }
 }

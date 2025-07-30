@@ -52,4 +52,12 @@ export class HistoryTransferRepository {
       where: { account_id: accountId },
     });
   }
+
+  async findByTargetAccountId(
+    targetAccountId: number,
+  ): Promise<HistoryTransfer[]> {
+    return this.historyTransferRepository.find({
+      where: { target_id_account: targetAccountId },
+    });
+  }
 }

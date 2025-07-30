@@ -38,7 +38,7 @@ export class AccountRepository {
     return (result.affected ?? 0) > 0;
   }
 
-  async findByClientId(clientId: number): Promise<Account[]> {
-    return this.accountRepository.find({ where: { client_id: clientId } });
+  async findByClientId(clientId: number): Promise<Account | null> {
+    return this.accountRepository.findOne({ where: { client_id: clientId } });
   }
 }

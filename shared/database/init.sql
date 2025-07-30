@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS accounts (
     value DECIMAL(15,2) NOT NULL DEFAULT 0.00,
     history_id INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(client_id)
 );
 
 -- Tabela de histórico de transferências

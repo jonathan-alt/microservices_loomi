@@ -57,4 +57,6 @@ export class HistoryTransferController {
   async remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
     return this.historyTransferService.delete(id);
   }
+
+  // Endpoints mínimos para transações
 }

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { HistoryTransferRepository } from "./repositories/history_transfer.repository";
 import { CreateHistoryDto } from "./dto/create-history.dto";
 import { UpdateHistoryDto } from "./dto/update-history.dto";
+
 import { HistoryTransfer } from "./entities/history-transfer.entity";
 import { MessagingService } from "../messaging/messaging.service";
 import { TransferCreatedEvent } from "../../shared/events/transfer.events";
@@ -67,5 +68,13 @@ export class HistoryTransferService {
 
   async findByAccountId(accountId: number): Promise<HistoryTransfer[]> {
     return this.historyTransferRepository.findByAccountId(accountId);
+  }
+
+  async findByTargetAccountId(
+    targetAccountId: number,
+  ): Promise<HistoryTransfer[]> {
+    return this.historyTransferRepository.findByTargetAccountId(
+      targetAccountId,
+    );
   }
 }

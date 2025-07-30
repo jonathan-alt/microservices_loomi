@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS accounts (
     value DECIMAL(15,2) NOT NULL DEFAULT 0.00,
     history_id INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(client_id)
 );
 
 -- Tabela de histórico de transferências
@@ -63,6 +64,10 @@ CREATE TRIGGER update_accounts_updated_at BEFORE UPDATE ON accounts
 
 CREATE TRIGGER update_history_transfer_updated_at BEFORE UPDATE ON history_transfer
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+
+
+
 
 -- Dados de exemplo (opcional)
 INSERT INTO clients (name, cpf, picture, email, phone, password) VALUES

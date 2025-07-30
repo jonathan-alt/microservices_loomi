@@ -1,4 +1,10 @@
-import { IsOptional, IsNumber, IsPositive } from "class-validator";
+import {
+  IsOptional,
+  IsNumber,
+  IsPositive,
+  IsString,
+  Length,
+} from "class-validator";
 
 export class UpdateAccountDto {
   @IsOptional()
@@ -15,4 +21,14 @@ export class UpdateAccountDto {
   @IsNumber()
   @IsPositive()
   history_id?: number;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 10)
+  agency?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 20)
+  account_number?: string;
 }

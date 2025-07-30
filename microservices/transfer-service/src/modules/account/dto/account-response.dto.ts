@@ -3,6 +3,8 @@ export class AccountResponseDto {
   client_id: number;
   value: number;
   history_id: number;
+  agency: string;
+  account_number: string;
   created_at?: Date;
   updated_at?: Date;
 }

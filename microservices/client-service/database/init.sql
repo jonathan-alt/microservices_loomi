@@ -1,4 +1,4 @@
--- Criação das tabelas para o microserviço de transferência
+-- Criação das tabelas para o microserviço de clientes
 
 -- Tabela de clientes
 CREATE TABLE IF NOT EXISTS clients (
@@ -23,31 +23,15 @@ CREATE TABLE IF NOT EXISTS accounts (
     account_number VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(client_id)
-);
-
--- Tabela de histórico de transferências
-CREATE TABLE IF NOT EXISTS history_transfer (
-    id SERIAL PRIMARY KEY,
-    account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    transfer_value DECIMAL(15,2) NOT NULL,
-    target_id_account INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    description TEXT,
-    new_value DECIMAL(15,2) NOT NULL,
-    old_value DECIMAL(15,2) NOT NULL,
-    type VARCHAR(20) NOT NULL CHECK (type IN ('TRANSFER', 'DEPOSIT', 'WITHDRAWAL', 'TRANSFER-SENT', 'TRANSFER-RECEIVED')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    UNIQUE(client_id),
+    UNIQUE(agency, account_number)
 );
 
 -- Índices para melhor performance
 CREATE INDEX IF NOT EXISTS idx_clients_cpf ON clients(cpf);
 CREATE INDEX IF NOT EXISTS idx_clients_email ON clients(email);
 CREATE INDEX IF NOT EXISTS idx_accounts_client_id ON accounts(client_id);
-CREATE INDEX IF NOT EXISTS idx_history_transfer_account_id ON history_transfer(account_id);
-CREATE INDEX IF NOT EXISTS idx_history_transfer_timestamp ON history_transfer(timestamp);
-CREATE INDEX IF NOT EXISTS idx_history_transfer_type ON history_transfer(type);
+CREATE INDEX IF NOT EXISTS idx_accounts_agency_account ON accounts(agency, account_number);
 
 -- Trigger para atualizar updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -64,13 +48,6 @@ CREATE TRIGGER update_clients_updated_at BEFORE UPDATE ON clients
 CREATE TRIGGER update_accounts_updated_at BEFORE UPDATE ON accounts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_history_transfer_updated_at BEFORE UPDATE ON history_transfer
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-
-
-
-
 -- Dados de exemplo (opcional)
 INSERT INTO clients (name, cpf, picture, email, phone, password) VALUES
     ('João Silva', '123.456.789-00', 'https://example.com/joao.jpg', 'joao@email.com', '(11) 99999-9999', '$2b$10$hashedpassword'),
@@ -80,9 +57,4 @@ ON CONFLICT (cpf) DO NOTHING;
 INSERT INTO accounts (client_id, value, history_id, agency, account_number) VALUES
     (1, 1000.00, 1, '0001', '123456-7'),
     (2, 500.00, 2, '0001', '765432-1')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO history_transfer (account_id, transfer_value, target_id_account, description, new_value, old_value, type) VALUES
-    (1, 100.00, 2, 'Transferência inicial', 900.00, 1000.00, 'TRANSFER-SENT'),
-    (2, 100.00, 1, 'Recebimento de transferência', 600.00, 500.00, 'TRANSFER-RECEIVED')
 ON CONFLICT DO NOTHING; 

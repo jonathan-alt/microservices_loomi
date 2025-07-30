@@ -21,6 +21,8 @@ describe("AccountService", () => {
     client_id: 123,
     value: 1000,
     history_id: 1,
+    agency: "0001",
+    account_number: "123456-7",
     created_at: new Date(),
     updated_at: new Date(),
   };
@@ -29,6 +31,8 @@ describe("AccountService", () => {
     client_id: 123,
     value: 1000,
     history_id: 1,
+    agency: "0001",
+    account_number: "123456-7",
   };
 
   const mockUpdateAccountDto: UpdateAccountDto = {
@@ -236,12 +240,16 @@ describe("AccountService", () => {
       id: 1,
       client_id: 123,
       value: 1000,
+      agency: "0001",
+      account_number: "123456-7",
     };
     const receiverAccount = {
       ...mockAccount,
       id: 2,
       client_id: 456,
       value: 500,
+      agency: "0001",
+      account_number: "765432-1",
     };
 
     beforeEach(() => {

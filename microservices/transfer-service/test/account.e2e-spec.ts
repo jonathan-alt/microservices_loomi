@@ -44,6 +44,8 @@ describe("AccountController (e2e)", () => {
         client_id: 123,
         value: 1000,
         history_id: 1,
+        agency: "0001",
+        account_number: "123456-7",
       };
 
       return request(app.getHttpServer())
@@ -89,6 +91,8 @@ describe("AccountController (e2e)", () => {
         client_id: 456,
         value: 2000,
         history_id: 1,
+        agency: "0001",
+        account_number: "765432-1",
       };
 
       const createResponse = await request(app.getHttpServer())

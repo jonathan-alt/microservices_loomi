@@ -1,11 +1,13 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { jwtConfig } from "../../../config/jwt.config";
+import { JwtPayload } from "../types/auth.types";
+import { RedisService } from "../services/redis.service";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private redisService: RedisService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -13,9 +15,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
-    // Aqui você pode adicionar validações adicionais
-    // Por exemplo, verificar se o usuário ainda existe no banco
+  validate(payload: JwtPayload) {
+    // Por enquanto, vamos usar um middleware global para verificar blacklist
+    // A validação será feita no guard personalizado
     return {
       id: payload.sub,
       email: payload.email,

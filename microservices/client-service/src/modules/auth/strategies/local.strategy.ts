@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-local";
+import { User } from "../types/auth.types";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -10,7 +11,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(email: string, password: string): Promise<any> {
+  validate(email: string, password: string): User {
     // Aqui você implementará a lógica de validação
     // Por enquanto, retornamos um mock
     if (email === "test@example.com" && password === "password") {
@@ -19,6 +20,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         email: "test@example.com",
         name: "Test User",
         cpf: "123.456.789-00",
+        picture: "https://example.com/test.jpg",
+        phone: "(11) 99999-9999",
       };
     }
     throw new UnauthorizedException("Credenciais inválidas");

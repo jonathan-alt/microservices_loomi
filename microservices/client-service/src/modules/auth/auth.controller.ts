@@ -13,6 +13,7 @@ import { RegisterDto } from "./dto/register.dto";
 import { AuthResponseDto } from "./dto/auth-response.dto";
 
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { BlacklistGuard } from "./guards/blacklist.guard";
 import { RequestWithUser, User } from "./types/auth.types";
 
 @Controller("auth")
@@ -40,7 +41,7 @@ export class AuthController {
   }
 
   @Post("logout")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, BlacklistGuard)
   @HttpCode(HttpStatus.OK)
   async logout(@Request() req: RequestWithUser): Promise<{ message: string }> {
     const token = req.headers.authorization?.replace("Bearer ", "");
@@ -51,7 +52,7 @@ export class AuthController {
   }
 
   @Post("me")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, BlacklistGuard)
   @HttpCode(HttpStatus.OK)
   getProfile(@Request() req: RequestWithUser): User {
     return req.user;

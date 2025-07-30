@@ -57,4 +57,25 @@ ON CONFLICT (cpf) DO NOTHING;
 INSERT INTO accounts (client_id, value, history_id, agency, account_number) VALUES
     (1, 1000.00, 1, '0001', '123456-7'),
     (2, 500.00, 2, '0001', '765432-1')
-ON CONFLICT DO NOTHING; 
+ON CONFLICT DO NOTHING;
+
+-- Tabela de sessões de usuário
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id SERIAL PRIMARY KEY,
+    client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+    token_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    is_revoked BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(token_hash)
+);
+
+-- Índices para sessões
+CREATE INDEX IF NOT EXISTS idx_user_sessions_client_id ON user_sessions(client_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at ON user_sessions(expires_at);
+
+-- Trigger para atualizar updated_at nas sessões
+CREATE TRIGGER update_user_sessions_updated_at BEFORE UPDATE ON user_sessions
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column(); 

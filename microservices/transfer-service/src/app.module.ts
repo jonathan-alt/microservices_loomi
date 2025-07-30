@@ -3,9 +3,11 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AccountModule } from "./modules/account/account.module";
 import { HistoryTransferModule } from "./modules/history_transfer/history_transfer.module";
+import { MetricsModule } from "./modules/metrics/metrics.module";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
+import { MetricsInterceptor } from "./common/interceptors/metrics.interceptor";
 import { Account } from "./modules/account/entities/account.entity";
 import { HistoryTransfer } from "./modules/history_transfer/entities/history-transfer.entity";
 
@@ -28,6 +30,7 @@ import { HistoryTransfer } from "./modules/history_transfer/entities/history-tra
     }),
     AccountModule,
     HistoryTransferModule,
+    MetricsModule,
   ],
   controllers: [],
   providers: [
@@ -38,6 +41,10 @@ import { HistoryTransfer } from "./modules/history_transfer/entities/history-tra
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MetricsInterceptor,
     },
   ],
 })

@@ -9,8 +9,8 @@ import { UpdateAccountDto } from "./dto/update-account.dto";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { Account } from "./entities/account.entity";
 import { MessagingService } from "../messaging/messaging.service";
-import { AccountBalanceUpdatedEvent } from "../../shared/events/transfer.events";
 import { HistoryTransferService } from "../history_transfer/history_transfer.service";
+import { RetryService } from "../../common/services/retry.service";
 
 @Injectable()
 export class AccountService {
@@ -18,6 +18,7 @@ export class AccountService {
     private readonly accountRepository: AccountRepository,
     private readonly messagingService: MessagingService,
     private readonly historyTransferService: HistoryTransferService,
+    private readonly retryService: RetryService,
   ) {}
 
   async create(createAccountDto: CreateAccountDto): Promise<Account> {
@@ -60,17 +61,18 @@ export class AccountService {
       throw new NotFoundException(`Conta com ID ${id} não encontrada`);
     }
 
-    // Publicar evento de atualização de saldo
+    // Publicar evento de atualização de saldo com retry
     if (account.id && account.client_id) {
-      const balanceEvent = new AccountBalanceUpdatedEvent(
-        account.id,
-        account.client_id,
-        oldAccount.value,
-        account.value,
-        account.value - oldAccount.value,
-        "TRANSFER",
-      );
-      this.messagingService.publishAccountBalanceUpdated(balanceEvent);
+      await this.retryService.executeMessagingOperation(async () => {
+        await this.messagingService.publishAccountBalanceUpdated({
+          accountId: account.id,
+          clientId: account.client_id,
+          oldBalance: oldAccount.value,
+          newBalance: account.value,
+          difference: account.value - oldAccount.value,
+          type: "TRANSFER",
+        });
+      });
     }
 
     return account;
@@ -135,7 +137,8 @@ export class AccountService {
       value: receiverAccount.value + createTransactionDto.amount,
     });
 
-    await this.historyTransferService.create({
+    // Criar histórico da transferência
+    const transferHistory = await this.historyTransferService.create({
       account_id: senderAccount.id,
       transfer_value: createTransactionDto.amount,
       target_id_account: receiverAccount.id,
@@ -145,6 +148,29 @@ export class AccountService {
       old_value: senderAccount.value,
       type: "TRANSFER-SENT",
       timestamp: new Date().toISOString(),
+    });
+
+    // Publicar eventos de transferência com retry
+    await this.retryService.executeMessagingOperation(async () => {
+      await this.messagingService.publishTransferCreated({
+        transferId: transferHistory.id,
+        senderUserId: createTransactionDto.senderUserId,
+        receiverUserId: createTransactionDto.receiverUserId,
+        amount: createTransactionDto.amount,
+        description: createTransactionDto.description,
+        status: "PENDING",
+      });
+    });
+
+    await this.retryService.executeMessagingOperation(async () => {
+      await this.messagingService.publishTransferCompleted({
+        transferId: transferHistory.id,
+        senderUserId: createTransactionDto.senderUserId,
+        receiverUserId: createTransactionDto.receiverUserId,
+        amount: createTransactionDto.amount,
+        description: createTransactionDto.description,
+        status: "COMPLETED",
+      });
     });
 
     return this.findById(senderAccount.id);

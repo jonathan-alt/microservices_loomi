@@ -24,4 +24,4 @@ async function bootstrap() {
   await app.listen(appConfig.port);
   console.log(`Transfer Service rodando na porta ${appConfig.port}`);
 }
-bootstrap();
+void bootstrap();

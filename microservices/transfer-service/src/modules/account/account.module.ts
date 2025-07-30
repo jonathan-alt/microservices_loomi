@@ -6,6 +6,7 @@ import { AccountRepository } from "./repositories/account.repository";
 import { Account } from "./entities/account.entity";
 import { MessagingModule } from "../messaging/messaging.module";
 import { HistoryTransferModule } from "../history_transfer/history_transfer.module";
+import { RetryService } from "../../common/services/retry.service";
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { HistoryTransferModule } from "../history_transfer/history_transfer.modu
     HistoryTransferModule,
   ],
   controllers: [AccountController],
-  providers: [AccountService, AccountRepository],
+  providers: [AccountService, AccountRepository, RetryService],
   exports: [AccountService],
 })
 export class AccountModule {}

@@ -2,8 +2,9 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
-
 import { AuthModule } from "./modules/auth/auth.module";
+import { MessagingModule } from "./modules/messaging/messaging.module";
+import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AuthModule } from "./modules/auth/auth.module";
       logging: true,
     }),
     AuthModule,
+    MessagingModule,
   ],
   controllers: [],
   providers: [
@@ -32,7 +34,7 @@ import { AuthModule } from "./modules/auth/auth.module";
     },
     {
       provide: APP_INTERCEPTOR,
-      useClass: class {},
+      useClass: LoggingInterceptor,
     },
   ],
 })

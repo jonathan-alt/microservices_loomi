@@ -11,12 +11,14 @@ import { AuthResponseDto } from "./dto/auth-response.dto";
 import { jwtConfig } from "../../config/jwt.config";
 import { User, JwtPayload } from "./types/auth.types";
 import { RedisService } from "./services/redis.service";
+import { MessagingService } from "../messaging/messaging.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
     private redisService: RedisService,
+    private messagingService: MessagingService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
@@ -50,6 +52,9 @@ export class AuthService {
 
       // Cache user data
       await this.redisService.cacheUser(user.id, user);
+
+      // Publish login event
+      await this.messagingService.publishUserLoggedIn(user);
 
       return this.generateTokens(user);
     }
@@ -138,6 +143,10 @@ export class AuthService {
     });
 
     await this.redisService.removeSession(token);
+
+    // Publish logout event
+    await this.messagingService.publishUserLoggedOut({ id: payload.sub });
+
     console.log("Token revogado:", token);
   }
 }

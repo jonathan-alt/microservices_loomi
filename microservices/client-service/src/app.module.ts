@@ -4,6 +4,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 import { AuthModule } from "./modules/auth/auth.module";
 import { MessagingModule } from "./modules/messaging/messaging.module";
+import { ClientModule } from "./modules/client/client.module";
 import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
 
 @Module({
@@ -25,6 +26,7 @@ import { LoggingInterceptor } from "./common/interceptors/logging.interceptor";
     }),
     AuthModule,
     MessagingModule,
+    ClientModule,
   ],
   controllers: [],
   providers: [

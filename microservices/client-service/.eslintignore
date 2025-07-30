@@ -1,0 +1,4 @@
+healthcheck.js
+dist/
+node_modules/
+*.js 

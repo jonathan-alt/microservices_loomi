@@ -130,9 +130,9 @@ services:
       # Configurações do banco de dados
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USERNAME=${DB_USERNAME:-your_username}
-      - DB_PASSWORD=${DB_PASSWORD:-your_password}
-      - DB_NAME=${DB_NAME:-your_database_name}
+      - DB_USERNAME=${DB_USERNAME:-platform_user}
+      - DB_PASSWORD=${DB_PASSWORD:-platform_password}
+      - DB_NAME=${DB_NAME:-microservices_platform}
       # Configurações do RabbitMQ
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672

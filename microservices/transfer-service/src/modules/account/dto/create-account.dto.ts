@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, IsPositive } from "class-validator";
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+  Length,
+} from "class-validator";
 
 export class CreateAccountDto {
   @IsNotEmpty()
@@ -15,4 +21,14 @@ export class CreateAccountDto {
   @IsNumber()
   @IsPositive()
   history_id: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(1, 10)
+  agency: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(1, 20)
+  account_number: string;
 }

@@ -19,9 +19,12 @@ CREATE TABLE IF NOT EXISTS accounts (
     client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
     value DECIMAL(15,2) NOT NULL DEFAULT 0.00,
     history_id INTEGER NOT NULL DEFAULT 1,
+    agency VARCHAR(10) NOT NULL,
+    account_number VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(client_id)
+    UNIQUE(client_id),
+    UNIQUE(agency, account_number)
 );
 
 -- Tabela de histórico de transferências
@@ -71,9 +74,9 @@ INSERT INTO clients (name, cpf, picture, email, phone, password) VALUES
     ('Maria Santos', '987.654.321-00', 'https://example.com/maria.jpg', 'maria@email.com', '(11) 88888-8888', '$2b$10$hashedpassword')
 ON CONFLICT (cpf) DO NOTHING;
 
-INSERT INTO accounts (client_id, value, history_id) VALUES
-    (1, 1000.00, 1),
-    (2, 500.00, 2)
+INSERT INTO accounts (client_id, value, history_id, agency, account_number) VALUES
+    (1, 1000.00, 1, '0001', '123456-7'),
+    (2, 500.00, 2, '0001', '765432-1')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO history_transfer (account_id, transfer_value, target_id_account, description, new_value, old_value, type) VALUES

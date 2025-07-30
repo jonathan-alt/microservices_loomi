@@ -25,4 +25,4 @@ async function bootstrap() {
   console.log(`Client Service rodando na porta ${appConfig.port}`);
 }
 
-bootstrap(); 
+void bootstrap();

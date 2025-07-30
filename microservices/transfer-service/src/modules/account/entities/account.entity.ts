@@ -20,6 +20,12 @@ export class Account {
   @Column({ name: "history_id", type: "int" })
   history_id: number;
 
+  @Column({ type: "varchar", length: 10 })
+  agency: string;
+
+  @Column({ name: "account_number", type: "varchar", length: 20 })
+  account_number: string;
+
   @CreateDateColumn({ name: "created_at" })
   created_at: Date;
 

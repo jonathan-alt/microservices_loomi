@@ -15,6 +15,8 @@ describe("AccountController", () => {
     client_id: 123,
     value: 1000,
     history_id: 1,
+    agency: "0001",
+    account_number: "123456-7",
     created_at: new Date(),
     updated_at: new Date(),
   };
@@ -23,6 +25,8 @@ describe("AccountController", () => {
     client_id: 123,
     value: 1000,
     history_id: 1,
+    agency: "0001",
+    account_number: "123456-7",
   };
 
   const mockUpdateAccountDto: UpdateAccountDto = {

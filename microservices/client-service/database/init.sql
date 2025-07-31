@@ -1,6 +1,6 @@
 -- Criação das tabelas para o microserviço de clientes
 
--- Tabela de clientes (mantida para compatibilidade)
+-- Tabela de clientes
 CREATE TABLE IF NOT EXISTS clients (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -9,21 +9,6 @@ CREATE TABLE IF NOT EXISTS clients (
     email VARCHAR(255),
     phone VARCHAR(20),
     password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Tabela de usuários (nova entidade)
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    cpf VARCHAR(14) UNIQUE NOT NULL,
-    phone VARCHAR(20),
-    picture TEXT,
-    address TEXT,
-    agency VARCHAR(10),
-    account_number VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -60,9 +45,6 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_clients_updated_at BEFORE UPDATE ON clients
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
 CREATE TRIGGER update_accounts_updated_at BEFORE UPDATE ON accounts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -70,11 +52,6 @@ CREATE TRIGGER update_accounts_updated_at BEFORE UPDATE ON accounts
 INSERT INTO clients (name, cpf, picture, email, phone, password) VALUES
     ('João Silva', '123.456.789-00', 'https://example.com/joao.jpg', 'joao@email.com', '(11) 99999-9999', '$2b$10$hashedpassword'),
     ('Maria Santos', '987.654.321-00', 'https://example.com/maria.jpg', 'maria@email.com', '(11) 88888-8888', '$2b$10$hashedpassword')
-ON CONFLICT (cpf) DO NOTHING;
-
-INSERT INTO users (name, email, cpf, phone, picture, address, agency, account_number) VALUES
-    ('João Silva', 'joao@email.com', '123.456.789-00', '(11) 99999-9999', 'https://example.com/joao.jpg', 'Rua das Flores, 123 - São Paulo, SP', '0001', '123456-7'),
-    ('Maria Santos', 'maria@email.com', '987.654.321-00', '(11) 88888-8888', 'https://example.com/maria.jpg', 'Av. Paulista, 456 - São Paulo, SP', '0001', '765432-1')
 ON CONFLICT (cpf) DO NOTHING;
 
 INSERT INTO accounts (client_id, value, history_id, agency, account_number) VALUES

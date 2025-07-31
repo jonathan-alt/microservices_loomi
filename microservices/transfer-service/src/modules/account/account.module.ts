@@ -7,12 +7,16 @@ import { Account } from "./entities/account.entity";
 import { MessagingModule } from "../messaging/messaging.module";
 import { HistoryTransferModule } from "../history_transfer/history_transfer.module";
 import { RetryService } from "../../common/services/retry.service";
+import { NotificationsModule } from "../notifications/notifications.module";
+import { AuditModule } from "../audit/audit.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Account]),
     MessagingModule,
     HistoryTransferModule,
+    NotificationsModule,
+    AuditModule,
   ],
   controllers: [AccountController],
   providers: [AccountService, AccountRepository, RetryService],

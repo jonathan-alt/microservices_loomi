@@ -73,6 +73,28 @@ describe("AccountService", () => {
       findByTargetAccountId: jest.fn(),
     };
 
+    const mockRetryService = {
+      executeMessagingOperation: jest.fn(),
+    };
+
+    const mockNotificationClientService = {
+      createNotification: jest.fn(),
+      sendEmail: jest.fn(),
+      sendSMS: jest.fn(),
+    };
+
+    const mockAuditClientService = {
+      logEvent: jest.fn(),
+      getAuditTrail: jest.fn(),
+      getAuditTrailByAction: jest.fn(),
+    };
+
+    const mockAnalyticsClientService = {
+      trackEvent: jest.fn(),
+      trackMetric: jest.fn(),
+      getMetrics: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountService,
@@ -87,6 +109,22 @@ describe("AccountService", () => {
         {
           provide: HistoryTransferService,
           useValue: mockHistoryTransferService,
+        },
+        {
+          provide: "RetryService",
+          useValue: mockRetryService,
+        },
+        {
+          provide: "NotificationClientService",
+          useValue: mockNotificationClientService,
+        },
+        {
+          provide: "AuditClientService",
+          useValue: mockAuditClientService,
+        },
+        {
+          provide: "AnalyticsClientService",
+          useValue: mockAnalyticsClientService,
         },
       ],
     }).compile();

@@ -12,6 +12,7 @@ import { AccountService } from "./account.service";
 import { CreateAccountDto } from "./dto/create-account.dto";
 import { UpdateAccountDto } from "./dto/update-account.dto";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
+import { DepositDto } from "./dto/deposit.dto";
 import { Account } from "./entities/account.entity";
 
 @Controller("accounts")
@@ -58,5 +59,20 @@ export class AccountController {
     @Body() createTransactionDto: CreateTransactionDto,
   ): Promise<Account> {
     return this.accountService.transfer(createTransactionDto);
+  }
+
+  // 1. Depósito em conta
+  @Post(":id/deposit")
+  async deposit(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() depositDto: DepositDto,
+  ): Promise<any> {
+    return this.accountService.deposit(id, depositDto);
+  }
+
+  // 2. Consulta de saldo
+  @Get(":id/balance")
+  async getBalance(@Param("id", ParseIntPipe) id: number): Promise<any> {
+    return this.accountService.getBalance(id);
   }
 }

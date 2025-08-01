@@ -7,6 +7,7 @@ import { AuthController } from "./auth.controller";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { UserSession } from "./entities/user-session.entity";
+import { Client } from "./entities/client.entity";
 import { RedisService } from "./services/redis.service";
 import { BlacklistGuard } from "./guards/blacklist.guard";
 import { MessagingModule } from "../messaging/messaging.module";
@@ -19,7 +20,7 @@ import { jwtConfig } from "../../config/jwt.config";
       secret: jwtConfig.secret,
       signOptions: jwtConfig.signOptions,
     }),
-    TypeOrmModule.forFeature([UserSession]),
+    TypeOrmModule.forFeature([UserSession, Client]),
     MessagingModule,
   ],
   controllers: [AuthController],

@@ -6,7 +6,7 @@ import { RedisService } from "./services/redis.service";
 import { MessagingService } from "../messaging/messaging.service";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
-import { User } from "./types/auth.types";
+import { Client } from "./types/auth.types";
 
 describe("AuthService", () => {
   let service: AuthService;
@@ -72,7 +72,7 @@ describe("AuthService", () => {
       password: "password",
     };
 
-    const mockUser: User = {
+    const mockUser: Client = {
       id: 1,
       email: "test@example.com",
       name: "Test User",
@@ -149,7 +149,7 @@ describe("AuthService", () => {
       password: "newpassword",
     };
 
-    const mockUser: User = {
+    const mockUser: Client = {
       id: 2,
       name: registerDto.name,
       email: registerDto.email,
@@ -192,7 +192,7 @@ describe("AuthService", () => {
       cpf: "123.456.789-00",
     };
 
-    const mockUser: User = {
+    const mockUser: Client = {
       id: 1,
       email: "test@example.com",
       name: "Test User",
@@ -262,7 +262,7 @@ describe("AuthService", () => {
   });
 
   describe("generateTokens", () => {
-    const mockUser: User = {
+    const mockUser: Client = {
       id: 1,
       email: "test@example.com",
       name: "Test User",

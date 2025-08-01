@@ -21,12 +21,18 @@ import { HistoryTransfer } from "./modules/history_transfer/entities/history-tra
       type: "postgres",
       host: process.env.DB_HOST || "postgres",
       port: parseInt(process.env.DB_PORT || "5432"),
-      username: process.env.DB_USERNAME || "your_username",
+      username: process.env.DB_USERNAME || "postgres",
       password: process.env.DB_PASSWORD || "your_password",
       database: process.env.DB_NAME || "your_database_name",
       entities: [Account, HistoryTransfer],
       synchronize: false, // Desabilitado para evitar conflitos com schema existente
       logging: true,
+      ssl:
+        process.env.NODE_ENV === "production"
+          ? {
+              rejectUnauthorized: false,
+            }
+          : false,
     }),
     AccountModule,
     HistoryTransferModule,

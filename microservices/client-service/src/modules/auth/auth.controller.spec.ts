@@ -5,7 +5,7 @@ import { RedisService } from "./services/redis.service";
 import { BlacklistGuard } from "./guards/blacklist.guard";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
-import { User } from "./types/auth.types";
+import { Client } from "./types/auth.types";
 
 describe("AuthController", () => {
   let controller: AuthController;
@@ -186,7 +186,7 @@ describe("AuthController", () => {
   });
 
   describe("getProfile", () => {
-    const mockUser: User = {
+    const mockUser: Client = {
       id: 1,
       name: "Test User",
       email: "test@example.com",

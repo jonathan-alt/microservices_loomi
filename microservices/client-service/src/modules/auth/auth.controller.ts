@@ -21,7 +21,7 @@ import { AuthResponseDto } from "./dto/auth-response.dto";
 
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { BlacklistGuard } from "./guards/blacklist.guard";
-import { RequestWithUser, User } from "./types/auth.types";
+import { RequestWithUser, Client } from "./types/auth.types";
 import { ApiProperty } from "@nestjs/swagger";
 
 // Classe para documentação do Swagger
@@ -134,7 +134,7 @@ export class AuthController {
   })
   @UseGuards(JwtAuthGuard, BlacklistGuard)
   @HttpCode(HttpStatus.OK)
-  getProfile(@Request() req: RequestWithUser): User {
+  getProfile(@Request() req: RequestWithUser): Client {
     return req.user;
   }
 }

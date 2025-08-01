@@ -1,18 +1,18 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ClientController } from "./client.controller";
 import { ClientService } from "./client.service";
-import { UserRepository } from "./repositories/user.repository";
+import { ClientRepository } from "./repositories/client.repository";
 import { TransferClientService } from "./services/transfer-client.service";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
-import { User as AuthUser } from "../auth/types/auth.types";
+import { Client as AuthClient } from "../auth/types/auth.types";
 
 describe("ClientController", () => {
   let controller: ClientController;
   let clientService: ClientService;
-  let userRepository: UserRepository;
+  let clientRepository: ClientRepository;
   let transferClientService: TransferClientService;
 
-  const mockUser: AuthUser = {
+  const mockClient: AuthClient = {
     id: 1,
     name: "João Silva",
     email: "joao@email.com",
@@ -21,7 +21,7 @@ describe("ClientController", () => {
     phone: "(11) 99999-9999",
   };
 
-  const mockUserRepository = {
+  const mockClientRepository = {
     findById: jest.fn(),
     findByCpf: jest.fn(),
     update: jest.fn(),
@@ -44,14 +44,14 @@ describe("ClientController", () => {
       controllers: [ClientController],
       providers: [
         { provide: ClientService, useValue: mockClientService },
-        { provide: UserRepository, useValue: mockUserRepository },
+        { provide: ClientRepository, useValue: mockClientRepository },
         { provide: TransferClientService, useValue: mockTransferClientService },
       ],
     }).compile();
 
     controller = module.get<ClientController>(ClientController);
     clientService = module.get<ClientService>(ClientService);
-    userRepository = module.get<UserRepository>(UserRepository);
+    clientRepository = module.get<ClientRepository>(ClientRepository);
     transferClientService = module.get<TransferClientService>(
       TransferClientService,
     );
@@ -63,7 +63,7 @@ describe("ClientController", () => {
 
   describe("getUserDetails", () => {
     it("should return user details successfully", async () => {
-      const userId = 1;
+      const userId = "1";
       const expectedResponse = {
         success: true,
         data: {
@@ -73,7 +73,6 @@ describe("ClientController", () => {
           cpf: "123.456.789-00",
           phone: "(11) 99999-9999",
           picture: "https://example.com/joao.jpg",
-          address: "Rua das Flores, 123",
           bankingDetails: {
             agency: "0001",
             accountNumber: "123456-7",
@@ -85,34 +84,32 @@ describe("ClientController", () => {
 
       mockClientService.getUserDetails.mockResolvedValue(expectedResponse);
 
-      const result = await controller.getUserDetails(userId, mockUser);
+      const result = await controller.getUserDetails(userId, {
+        user: mockClient,
+      });
 
       expect(result).toEqual(expectedResponse);
-      expect(clientService.getUserDetails).toHaveBeenCalledWith(
-        userId,
-        mockUser,
-      );
+      expect(clientService.getUserDetails).toHaveBeenCalledWith(1, mockClient);
     });
 
     it("should throw ForbiddenException when accessing other user data", async () => {
-      const userId = 2; // Different user ID
+      const userId = "2"; // Different user ID
       mockClientService.getUserDetails.mockRejectedValue(
         new ForbiddenException("Acesso negado a dados de outro usuário"),
       );
 
-      await expect(controller.getUserDetails(userId, mockUser)).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(
+        controller.getUserDetails(userId, { user: mockClient }),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
   describe("updateUser", () => {
     it("should update user successfully", async () => {
-      const userId = 1;
+      const userId = "1";
       const updateUserDto = {
         name: "João Silva Atualizado",
         email: "joao.novo@email.com",
-        address: "Nova Rua, 456",
         bankingDetails: {
           agency: "0002",
           accountNumber: "987654-3",
@@ -129,7 +126,7 @@ describe("ClientController", () => {
           cpf: "123.456.789-00",
           phone: "(11) 99999-9999",
           picture: "https://example.com/joao.jpg",
-          address: "Nova Rua, 456",
+
           bankingDetails: {
             agency: "0002",
             accountNumber: "987654-3",
@@ -139,22 +136,20 @@ describe("ClientController", () => {
 
       mockClientService.updateUser.mockResolvedValue(expectedResponse);
 
-      const result = await controller.updateUser(
-        userId,
-        updateUserDto,
-        mockUser,
-      );
+      const result = await controller.updateUser(userId, updateUserDto, {
+        user: mockClient,
+      });
 
       expect(result).toEqual(expectedResponse);
       expect(clientService.updateUser).toHaveBeenCalledWith(
-        userId,
+        1,
         updateUserDto,
-        mockUser,
+        mockClient,
       );
     });
 
     it("should throw ForbiddenException when updating other user data", async () => {
-      const userId = 2; // Different user ID
+      const userId = "2"; // Different user ID
       const updateUserDto = { name: "João Silva Atualizado" };
 
       mockClientService.updateUser.mockRejectedValue(
@@ -162,14 +157,14 @@ describe("ClientController", () => {
       );
 
       await expect(
-        controller.updateUser(userId, updateUserDto, mockUser),
+        controller.updateUser(userId, updateUserDto, { user: mockClient }),
       ).rejects.toThrow(ForbiddenException);
     });
   });
 
   describe("updateProfilePicture", () => {
     it("should update profile picture successfully", async () => {
-      const userId = 1;
+      const userId = "1";
       const updateProfilePictureDto = {
         profilePicture: "https://example.com/new-avatar.jpg",
       };
@@ -184,7 +179,6 @@ describe("ClientController", () => {
           cpf: "123.456.789-00",
           phone: "(11) 99999-9999",
           picture: "https://example.com/new-avatar.jpg",
-          address: "Rua das Flores, 123",
         },
       };
 
@@ -195,19 +189,19 @@ describe("ClientController", () => {
       const result = await controller.updateProfilePicture(
         userId,
         updateProfilePictureDto,
-        mockUser,
+        { user: mockClient },
       );
 
       expect(result).toEqual(expectedResponse);
       expect(clientService.updateProfilePicture).toHaveBeenCalledWith(
-        userId,
+        1,
         updateProfilePictureDto,
-        mockUser,
+        mockClient,
       );
     });
 
     it("should throw ForbiddenException when updating other user profile picture", async () => {
-      const userId = 2; // Different user ID
+      const userId = "2"; // Different user ID
       const updateProfilePictureDto = {
         profilePicture: "https://example.com/new-avatar.jpg",
       };
@@ -217,11 +211,9 @@ describe("ClientController", () => {
       );
 
       await expect(
-        controller.updateProfilePicture(
-          userId,
-          updateProfilePictureDto,
-          mockUser,
-        ),
+        controller.updateProfilePicture(userId, updateProfilePictureDto, {
+          user: mockClient,
+        }),
       ).rejects.toThrow(ForbiddenException);
     });
   });
@@ -249,10 +241,10 @@ describe("ClientController", () => {
 
       mockClientService.searchByCpf.mockResolvedValue(expectedResponse);
 
-      const result = await controller.searchByCpf(cpf, mockUser);
+      const result = await controller.searchByCpf(cpf, { user: mockClient });
 
       expect(result).toEqual(expectedResponse);
-      expect(clientService.searchByCpf).toHaveBeenCalledWith(cpf, mockUser);
+      expect(clientService.searchByCpf).toHaveBeenCalledWith(cpf, mockClient);
     });
 
     it("should throw ForbiddenException with invalid CPF", async () => {
@@ -261,9 +253,9 @@ describe("ClientController", () => {
         new ForbiddenException("CPF inválido"),
       );
 
-      await expect(controller.searchByCpf(cpf, mockUser)).rejects.toThrow(
-        ForbiddenException,
-      );
+      await expect(
+        controller.searchByCpf(cpf, { user: mockClient }),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it("should throw NotFoundException when user not found", async () => {
@@ -272,9 +264,9 @@ describe("ClientController", () => {
         new NotFoundException("Usuário não encontrado"),
       );
 
-      await expect(controller.searchByCpf(cpf, mockUser)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        controller.searchByCpf(cpf, { user: mockClient }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

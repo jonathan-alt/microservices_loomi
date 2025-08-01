@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-local";
-import { User } from "../types/auth.types";
+import { Client } from "../types/auth.types";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -11,7 +11,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(email: string, password: string): User {
+  validate(email: string, password: string): Client {
     // Aqui você implementará a lógica de validação
     // Por enquanto, retornamos um mock
     if (email === "test@example.com" && password === "password") {

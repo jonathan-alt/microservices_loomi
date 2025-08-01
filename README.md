@@ -358,30 +358,283 @@ docker-compose exec postgres psql -U platform_user -d microservices_platform
 docker-compose exec redis redis-cli
 ```
 
-## 🚀 Deploy
+Prompts:
 
-### **Produção**
+Ferramentas - (cursor - claude)
 
-```bash
-# Usar docker-compose.yml para produção
-docker-compose -f docker-compose.yml up -d
-```
+Contexto:
+Logo no início, eu tinha apenas criado o projeto a estrutura e modelado o banco
 
-### **Desenvolvimento**
+prompt:
+Dada a modelagem do banco abaixo, preencha as entities e o repository
 
-```bash
-# Usar docker-compose.dev.yml para desenvolvimento
-docker-compose -f docker-compose.dev.yml up
-```
+Tabelas:
 
-## 📝 Contribuição
+client
+name - str (not null)
+cpf - str (not null)
+id - int (not null)
+picture - image (not null)
+email - str
+phone - str
+password - str
+account
+Id - int (not null)
+client_id - int (not null)
+value - int (not null)
+history_id - int (not null)
+history_transfer
+Id - int (not null)
+account_id - int (not null)
+transfer_value - int (not null)
+target_id_account - int (not null)
+timestamp - timestamp (not null)
+description - str
+new_value - int (not null)
+old_value - int (not null)
+type - str (not null)
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+    resultado:
 
-## 📄 Licença
+(funcionou adequadamente)
+Basico
+Contexto:
+Após criar e organizar a estrutura docker
 
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+prompt:
+Preciso de um arquivo init para inicializar as tabelas no banco quando eu subir o container do postgresql, se baseie na estrutura de dados fornecida anteriormente e presente nos arquivos que passei como parâmetro
+
+    resultado:
+
+(funcionou adequadamente)
+
+Contexto:
+Após tanto container de serviço como do banco funcionando
+
+prompt:
+Crie um crud genérico para history_transfer e account, se a tenha a ser simples, quero um get, um post, um patch e um delete.
+
+    resultado:
+
+    Ele criou o crud mas para um banco mock, optei por criar uma nova branch para alterar o crud para usar typeorm e se conectar ao container postgresql
+
+Contexto:
+Por ter menos familiaridade com micro serviço, fiz inicialmente um crud genérico, apenas preocupado com escalabilidade e boas práticas, para então fazer alterações para microserviço
+
+prompt:
+Me dê um arquivo genérico de rabbitmq
+(chat gpt)
+
+    resultado:
+
+    export const rabbitMQConfig = {
+
+host: process.env.RABBITMQ_HOST || "localhost",
+port: parseInt(process.env.RABBITMQ_PORT || "5672"),
+username: process.env.RABBITMQ_USERNAME || "guest",
+password: process.env.RABBITMQ_PASSWORD || "guest",
+vhost: process.env.RABBITMQ_VHOST || "/",
+};
+
+export const rabbitMQExchanges = {
+transfer: "transfer.exchange",
+client: "client.exchange",
+};
+
+export const rabbitMQQueues = {
+transferEvents: "transfer.events",
+clientEvents: "client.events",
+transferNotifications: "transfer.notifications",
+};
+
+export const rabbitMQRoutingKeys = {
+// Eventos publicados pelo Transfer Service
+transferCreated: "transfer.created",
+transferCompleted: "transfer.completed",
+transferFailed: "transfer.failed",
+accountBalanceUpdated: "account.balance.updated",
+
+// Eventos escutados pelo Transfer Service
+clientCreated: "client.created",
+clientUpdated: "client.updated",
+};
+
+Contexto:
+Depois de criar os eventos e as mensagens
+
+prompt:
+Atualize as referências e importações
+
+    resultado:
+
+    Funcionou corretamente
+
+Contexto:
+Estava com o escopo inicial do primeiro primeiro serviço ok, deveria partir para escopo inicial dos outros ou a lógica de negócio desse primeiro, mas pensando para o futuro fui saber se estava organizando tudo da melhor maneira
+
+prompt:
+quais arquitetura organizacional (estrutura de repositórios) para um microserviço e as vantagens de cada um deles
+
+    resultado:
+
+    1. Monorepo (Monolithic Repository)
+
+📁 Estrutura:
+
+/repositorio-principal
+/auth-service
+/user-service
+/transaction-service
+/libs-comuns
+package.json (raiz, opcional)
+docker-compose.yml
+
+✅ Vantagens:
+Facilidade de versionamento conjunto: tudo pode ser versionado de forma coordenada.
+
+Melhor reutilização de código: bibliotecas e módulos comuns podem ser compartilhados com facilidade.
+
+Facilidade de navegação e refatoração: muda um contrato entre serviços? É só ajustar tudo no mesmo lugar.
+
+CI/CD unificado: pipelines centralizados e mais fáceis de gerenciar no início.
+
+❌ Desvantagens:
+Escalabilidade limitada em times grandes.
+
+Build e testes podem ser mais lentos com o tempo.
+
+Pode dificultar controle de acesso mais granular por serviço.
+
+Tendência a “acoplamento organizacional” (times precisam de coordenação constante).
+
+2. Multirepo (Multiple Repositories)
+   📁 Estrutura:
+   /repositorio-auth
+   /repositorio-user
+   /repositorio-transaction
+   /repositorio-libs-comuns (opcional ou como submódulo)
+
+✅ Vantagens:
+Independência total de times: cada time cuida do seu serviço com autonomia.
+
+Pipelines mais rápidos: builds e testes mais curtos e específicos.
+
+Controle de acesso por repositório: segurança mais granular.
+
+Mais alinhado com filosofia de microsserviços (serviços isolados).
+
+❌ Desvantagens:
+Mais difícil de manter consistência (ex: versões de bibliotecas compartilhadas).
+
+Refatorações em múltiplos serviços são mais trabalhosas.
+
+CI/CD descentralizado exige mais cuidado.
+
+Gerenciamento de múltiplos repositórios é mais complexo.
+
+3. Hybrid Repo (Monorepo com Serviços Clonáveis/Plugáveis)
+   📁 Estrutura:
+   Parecido com monorepo, mas cada serviço pode ser desacoplado como pacote independente, ou rodado isoladamente.
+   bash
+   CopiarEditar
+   /repositorio-principal
+   /servicos
+   /auth
+   /user
+   /transaction
+   /libs
+
+Cada serviço pode:
+Ser buildado sozinho
+
+Ter Docker próprio
+
+Ser publicado como pacote
+
+✅ Vantagens:
+Combina os benefícios de monorepo com certa modularidade.
+
+Facilita evolução gradual: começa monorepo, migra para multirepo se necessário.
+
+Refatoração conjunta ainda possível.
+
+❌ Desvantagens:
+Requer uma boa disciplina para manter os serviços realmente isolados.
+
+Complexidade técnica maior para CI/CD condicional.
+
+Contexto:
+Depois de escolher adaptar para monoporepo
+
+prompt:
+Preciso adaptar a organização atual para monorepo, poderia me dizer quais boas práticas para essa organização
+
+resultado:
+
+(funcionou adequadamente)
+
+Contexto:
+Depois de praticamente finalizar o mínimo do serviço de transferências
+
+prompt:
+Da mesma maneira que fiz transfer_service, crie o client_service, seguindo o mesmo padrão
+
+resultado:
+
+(funcionou adequadamente)
+
+Contexto:
+Para criar um mecanismo de autenticação
+
+prompt:
+Crie toda estrutura para usar JWT em conjunto com bycrpt em um mecanismo de autenticação. O token gerado deve ser armazenado em uma tabela a parte que terá os seguintes campos
+
+Id - int (not null)
+Client_id - int
+Token_hash - str
+expires_at - timestamp
+is_revoked - boolean
+created_at - timestamp
+update_at timestamp
+
+resultado:
+
+(funcionou adequadamente)
+
+Contexto:
+Depois de instalar as dependências do redis
+
+prompt:
+Use o banco redis recém adicionado para criar um blacklist de tokens expirados, seja por tempo ou por logout, e para manter dados de client que serão usados constantemente
+
+resultado:
+
+(funcionou adequadamente)
+
+Contexto:
+Últimos testes escritos
+
+prompt:
+Baseado nos testes já existente escreva os testes para os endpoints de client_service
+
+    resultado:
+
+(funcionou adequadamente)
+
+Contexto:
+Ao criar cenários abstratos
+
+prompt:
+Baseado no cenário de auditação que estou passando como parâmetro, crie um de notificação que irá notificar o usuário por meio de suposto email e sms
+resultado:
+
+(funcionou adequadamente)
+
+Contexto:
+Depois de acabar quase tudo
+
+prompt:
+Atualize os readmes com arquitetura, tecnologias e instruções
+
+resultado:
+(funcionou adequadamente)

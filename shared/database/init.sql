@@ -1,5 +1,20 @@
 -- Criação das tabelas para o microserviço de transferência
 
+-- Criar usuário se não existir
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'platform_user') THEN
+        CREATE USER platform_user WITH PASSWORD 'platform_password';
+    END IF;
+END
+$$;
+
+-- Conceder privilégios ao usuário
+GRANT ALL PRIVILEGES ON DATABASE microservices_platform TO platform_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO platform_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO platform_user;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO platform_user;
+
 -- Tabela de clientes
 CREATE TABLE IF NOT EXISTS clients (
     id SERIAL PRIMARY KEY,
@@ -9,6 +24,8 @@ CREATE TABLE IF NOT EXISTS clients (
     email VARCHAR(255),
     phone VARCHAR(20),
     password VARCHAR(255) NOT NULL,
+    agency VARCHAR(10),
+    account_number VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -42,6 +59,16 @@ CREATE TABLE IF NOT EXISTS history_transfer (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id SERIAL PRIMARY KEY,
+    client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+    token_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    is_revoked BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(token_hash)
+);
 -- Índices para melhor performance
 CREATE INDEX IF NOT EXISTS idx_clients_cpf ON clients(cpf);
 CREATE INDEX IF NOT EXISTS idx_clients_email ON clients(email);
@@ -49,7 +76,11 @@ CREATE INDEX IF NOT EXISTS idx_accounts_client_id ON accounts(client_id);
 CREATE INDEX IF NOT EXISTS idx_history_transfer_account_id ON history_transfer(account_id);
 CREATE INDEX IF NOT EXISTS idx_history_transfer_timestamp ON history_transfer(timestamp);
 CREATE INDEX IF NOT EXISTS idx_history_transfer_type ON history_transfer(type);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_client_id ON user_sessions(client_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at ON user_sessions(expires_at);
 
+    
 -- Trigger para atualizar updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -58,6 +89,9 @@ BEGIN
     RETURN NEW;
 END;
 $$ language 'plpgsql';
+
+CREATE TRIGGER update_user_sessions_updated_at BEFORE UPDATE ON user_sessions
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column(); 
 
 CREATE TRIGGER update_clients_updated_at BEFORE UPDATE ON clients
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

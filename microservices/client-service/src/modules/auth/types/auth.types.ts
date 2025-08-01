@@ -5,7 +5,7 @@ export interface JwtPayload {
   cpf: string;
 }
 
-export interface User {
+export interface Client {
   id: number;
   name: string;
   email: string;
@@ -15,7 +15,7 @@ export interface User {
 }
 
 export interface RequestWithUser {
-  user: User;
+  user: Client;
   headers: {
     authorization?: string;
   };

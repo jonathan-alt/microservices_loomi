@@ -3,7 +3,7 @@ import { HttpService } from "@nestjs/axios";
 import {
   TransferClientService,
   AccountDetails,
-} from "./transfer-client.service";
+} from "../services/transfer-client.service";
 import { HttpException, HttpStatus } from "@nestjs/common";
 import { of, throwError } from "rxjs";
 

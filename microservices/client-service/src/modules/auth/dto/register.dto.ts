@@ -6,6 +6,7 @@ import {
   IsOptional,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { IsCPF } from "../../client/dto/cpf.decorator";
 
 export class RegisterDto {
   @ApiProperty({
@@ -21,7 +22,7 @@ export class RegisterDto {
     example: "123.456.789-00",
   })
   @IsNotEmpty()
-  @IsString()
+  @IsCPF()
   cpf: string;
 
   @ApiProperty({
